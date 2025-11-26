@@ -1,8 +1,15 @@
 export interface Product {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  description: any;
+  description: string;
   id: number;
   title: string;
   price: number;
   image: string;
 }
+
+export interface RegisterFormValues {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+}
+
