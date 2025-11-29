@@ -5,6 +5,7 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LogIn/LogInPage";
 import Navbar from "./components/NavBar/NavBar";
 import RegisterPage from "./pages/Register/RegisterPage";
+import ProductsPage from "./pages/Products/ProductsPage";
 
 function AppContent() {
   const location = useLocation();
@@ -20,6 +21,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/products" element={<ProductsPage />} />
           <Route path="/register" element={<RegisterPage />} />
         </Routes>
       </Content>

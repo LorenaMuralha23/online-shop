@@ -4,6 +4,8 @@ export interface Product {
   title: string;
   price: number;
   image: string;
+  rating: { rate: number; count: number };
+  category: string;
 }
 
 export interface RegisterFormValues {
@@ -21,3 +23,8 @@ export interface User {
   password: string;
 }
 
+export interface LoggedUser {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
