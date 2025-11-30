@@ -1,12 +1,8 @@
-import { Layout, Input, Space, Dropdown, type MenuProps } from "antd";
-import {
-  ShoppingCartOutlined,
-  LoginOutlined,
-  UserOutlined,
-  LogoutOutlined,
-} from "@ant-design/icons";
-import { Link, useNavigate } from "react-router-dom";
+import { Layout, Input, Space, Button } from "antd";
+import { ShoppingCartOutlined, LoginOutlined, UserOutlined, MoonOutlined, SunOutlined } from "@ant-design/icons";
+import { Link } from "react-router-dom";
 import { useState } from "react";
+import type { NavbarProps } from "../../pages/interfaces/Interfaces";
 
 const { Header } = Layout;
 const { Search } = Input;
@@ -17,31 +13,11 @@ interface LoggedUser {
   email: string;
 }
 
-export default function Navbar() {
-  const navigate = useNavigate();
-
-  // Carrega o usuário logado 1x sem warnings
-  const [user, setUser] = useState<LoggedUser | null>(() => {
-    const storedUser = localStorage.getItem("loggedUser");
-    return storedUser ? JSON.parse(storedUser) : null;
+export default function Navbar({ mode, setMode }: NavbarProps) {
+  const [user] = useState<LoggedUser | null>(() => {
+    const stored = localStorage.getItem("loggedUser");
+    return stored ? JSON.parse(stored) : null;
   });
-
-  // Logout
-  const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
-    if (key === "logout") {
-      localStorage.removeItem("loggedUser");
-      setUser(null);
-      navigate("/login");
-    }
-  };
-
-  const userMenuItems: MenuProps["items"] = [
-    {
-      key: "logout",
-      label: "Logout",
-      icon: <LogoutOutlined />,
-    },
-  ];
 
   return (
     <Header
@@ -55,25 +31,10 @@ export default function Navbar() {
         width: "100%",
       }}
     >
-      {/* LOGO + HOME */}
+      {/* LOGO + LINKS PRINCIPAIS */}
       <Space size="large" align="center">
-        <Link
-          to="/"
-          style={{
-            fontSize: 24,
-            fontWeight: 700,
-            color: "#ff6600",
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <img
-            src="https://cdn-icons-png.flaticon.com/512/833/833314.png"
-            height={28}
-            style={{ marginRight: 8 }}
-          />
-          <span style={{ color: "#ff6600" }}>Online</span>
-          <span style={{ color: "#0077cc", marginLeft: 5 }}>Shop</span>
+        <Link to="/" style={{ fontSize: 24, fontWeight: 700, color: "#ff6600" }}>
+          Online <span style={{ color: "#0077cc" }}>Shop</span>
         </Link>
 
         <Link to="/" style={{ fontSize: 16, color: "#000" }}>
@@ -83,6 +44,13 @@ export default function Navbar() {
         <Link to="/products" style={{ fontSize: 16, color: "#000" }}>
           Products
         </Link>
+
+        {/* 🔵 CLIENTS SÓ APARECE SE O USUÁRIO ESTIVER LOGADO */}
+        {user && (
+          <Link to="/clients" style={{ fontSize: 16, color: "#000" }}>
+            Clients
+          </Link>
+        )}
       </Space>
 
       {/* SEARCH */}
@@ -90,28 +58,15 @@ export default function Navbar() {
         <Search placeholder="Find Product" enterButton style={{ maxWidth: 450 }} />
       </div>
 
-      {/* LOGIN OU USUÁRIO LOGADO */}
+      {/* LOGIN OU USUÁRIO */}
       <Space size="large" align="center">
         {user ? (
-          <Dropdown
-            menu={{ items: userMenuItems, onClick: handleMenuClick }}
-            placement="bottomRight"
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                cursor: "pointer",
-                paddingInline: 4,
-              }}
-            >
-              <UserOutlined />
-              <span style={{ fontSize: 15, fontWeight: 500 }}>
-                {user.firstName.toUpperCase()}
-              </span>
-            </div>
-          </Dropdown>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <UserOutlined />
+            <span style={{ fontSize: 15, fontWeight: 500 }}>
+              {user.firstName.toUpperCase()}
+            </span>
+          </div>
         ) : (
           <Link to="/login" style={{ fontSize: 15 }}>
             <LoginOutlined style={{ marginRight: 5 }} />
@@ -119,7 +74,16 @@ export default function Navbar() {
           </Link>
         )}
 
-        {/* CART */}
+        <Button
+          type="text"
+          onClick={() => setMode(mode === "light" ? "dark" : "light")}
+          icon={
+            mode === "light"
+              ? <MoonOutlined style={{ fontSize: 18 }} />
+              : <SunOutlined style={{ fontSize: 18, color: "#fadb14" }} />
+          }
+        />
+
         <Link to="/cart" style={{ fontSize: 15 }}>
           <ShoppingCartOutlined style={{ marginRight: 5 }} />
           Cart
