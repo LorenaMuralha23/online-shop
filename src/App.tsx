@@ -10,6 +10,7 @@ import RegisterPage from "./pages/Register/RegisterPage";
 import ProductsPage from "./pages/Products/ProductsPage";
 import ClientsPage from "./pages/Clients/ClientsPage";
 import CartPage from "./pages/Clients/CartPage";
+import ProfilePage from "./pages/Profile/ProfilePage";
 
 function AppContent() {
   const location = useLocation();
@@ -48,6 +49,7 @@ function AppContent() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/clients" element={<ClientsPage />} />
             <Route path="/cart" element={<CartPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Routes>
         </Content>
       </Layout>

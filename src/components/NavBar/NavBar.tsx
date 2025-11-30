@@ -5,6 +5,7 @@ import {
   Button,
   Drawer,
   Menu,
+  Dropdown,
 } from "antd";
 import {
   ShoppingCartOutlined,
@@ -13,6 +14,7 @@ import {
   MoonOutlined,
   SunOutlined,
   MenuOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -37,7 +39,7 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // Usuário logado
-  const [user] = useState<LoggedUser | null>(() => {
+  const [user, setUser] = useState<LoggedUser | null>(() => {
     const stored = localStorage.getItem("loggedUser");
     return stored ? JSON.parse(stored) : null;
   });
@@ -50,7 +52,6 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
   useEffect(() => {
     const p = new URLSearchParams(location.search);
     const value = p.get("q") || "";
-
     if (value !== search) {
       setSearch(value);
     }
@@ -65,18 +66,41 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
     }
 
     const newParams = new URLSearchParams(location.search);
-    if (trimmed) {
-      newParams.set("q", trimmed);
-    } else {
-      newParams.delete("q");
-    }
+    if (trimmed) newParams.set("q", trimmed);
+    else newParams.delete("q");
 
-
-    navigate({
-      pathname: "/products",
-      search: newParams.toString(),
-    });
+    navigate({ pathname: "/products", search: newParams.toString() });
   };
+
+  // =============================
+  //  🔵 DROPDOWN: Perfil + Logout
+  // =============================
+  const handleLogout = () => {
+    localStorage.removeItem("loggedUser");
+    setUser(null);
+    navigate("/login");
+  };
+
+  const userMenu = (
+    <Menu
+      items={[
+        {
+          key: "profile",
+          label: "Perfil",
+          onClick: () => navigate("/profile"),
+        },
+        {
+          type: "divider",
+        },
+        {
+          key: "logout",
+          danger: true,
+          label: "Logout",
+          onClick: handleLogout,
+        },
+      ]}
+    />
+  );
 
   return (
     <>
@@ -108,9 +132,7 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
             className="mobile-menu"
             onClick={() => setMobileOpen(true)}
             icon={<MenuOutlined style={{ fontSize: 22 }} />}
-            style={{
-              display: "none",
-            }}
+            style={{ display: "none" }}
           />
 
           {/* Logo */}
@@ -128,8 +150,12 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
 
           {/* MENU - Desktop */}
           <div className="desktop-menu" style={{ display: "flex", gap: 20 }}>
-            <Link to="/" style={{ fontSize: 16 }}>Home</Link>
-            <Link to="/products" style={{ fontSize: 16 }}>Products</Link>
+            <Link to="/" style={{ fontSize: 16 }}>
+              Home
+            </Link>
+            <Link to="/products" style={{ fontSize: 16 }}>
+              Products
+            </Link>
 
             {user && (
               <Link to="/clients" style={{ fontSize: 16 }}>
@@ -158,10 +184,45 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
           style={{ display: "flex", alignItems: "center" }}
         >
           {user ? (
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <UserOutlined />
-              {user.firstName.toUpperCase()}
-            </div>
+            <Dropdown
+              placement="bottomRight"
+              trigger={["click"]}
+              menu={{
+                items: [
+                  {
+                    key: "profile",
+                    label: "Perfil",
+                    onClick: () => navigate("/profile"),
+                  },
+                  {
+                    type: "divider",
+                  },
+                  {
+                    key: "logout",
+                    label: "Logout",
+                    danger: true,
+                    onClick: handleLogout,
+                  },
+                ],
+              }}
+            >
+              <Button
+                type="text"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontWeight: 500,
+                  border: "none",
+                  boxShadow: "none",
+                }}
+              >
+                <UserOutlined />
+                {user.firstName.toUpperCase()}
+                <DownOutlined style={{ fontSize: 10 }} />
+              </Button>
+            </Dropdown>
+
           ) : (
             <Link to="/login" style={{ fontSize: 15 }}>
               <LoginOutlined /> Login
@@ -172,9 +233,11 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
             type="text"
             onClick={() => setMode(mode === "light" ? "dark" : "light")}
             icon={
-              mode === "light"
-                ? <MoonOutlined style={{ fontSize: 18 }} />
-                : <SunOutlined style={{ fontSize: 18, color: "#fadb14" }} />
+              mode === "light" ? (
+                <MoonOutlined style={{ fontSize: 18 }} />
+              ) : (
+                <SunOutlined style={{ fontSize: 18, color: "#fadb14" }} />
+              )
             }
           />
 
@@ -204,9 +267,15 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
               <LoginOutlined /> Login
             </Menu.Item>
           ) : (
-            <Menu.Item>
-              <UserOutlined /> {user.firstName.toUpperCase()}
-            </Menu.Item>
+            <>
+              <Menu.Item onClick={() => navigate("/profile")}>
+                <UserOutlined /> Perfil
+              </Menu.Item>
+
+              <Menu.Item danger onClick={handleLogout}>
+                Logout
+              </Menu.Item>
+            </>
           )}
 
           <Menu.Item
