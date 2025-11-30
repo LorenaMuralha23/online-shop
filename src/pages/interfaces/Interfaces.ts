@@ -56,3 +56,11 @@ export interface NavbarProps {
   mode: "light" | "dark";
   setMode: (m: "light" | "dark") => void;
 }
+
+export interface CartItem {
+  id: number;            // id do produto
+  title: string;
+  image: string;
+  price: number;
+  quantity: number;
+}
