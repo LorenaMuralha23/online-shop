@@ -12,22 +12,32 @@ import {
   Input,
   Popconfirm,
   message,
+  Modal,
 } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
+import default_image from "../../assets/default_image.jpeg";
 
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../store";
 import {
   deleteProduct,
   setProducts,
-  updateProduct
+  updateProduct,
+  addProduct,
 } from "../../store/productSlice";
+
 import type { Product } from "../interfaces/Interfaces";
 import { addToCart } from "../../store/cartSlice";
 
 const { Title } = Typography;
 
-// --- FORM TYPES ---
+// ===============================
+// FORM TYPES
+// ===============================
 interface ProductFormValues {
   title: string;
   price: number;
@@ -36,7 +46,9 @@ interface ProductFormValues {
   image: string;
 }
 
-// --- FAKESTORE API TYPE ---
+// ===============================
+// API TYPE
+// ===============================
 interface ApiProduct {
   id: number;
   title: string;
@@ -55,19 +67,29 @@ export default function ProductsPage() {
   const products = useSelector((state: RootState) => state.products.list);
 
   const [loading, setLoading] = useState(false);
+
+  // SEARCH TEXT
+  const [searchText, setSearchText] = useState("");
+
+  // EDIT
   const [editOpen, setEditOpen] = useState(false);
   const [current, setCurrent] = useState<Product | null>(null);
   const [formEdit] = Form.useForm<ProductFormValues>();
 
-  // ============================================================
-  // 1. LOAD API + LOCALSTORAGE PRODUCTS
-  // ============================================================
+  // CREATE
+  const [createOpen, setCreateOpen] = useState(false);
+  const [formCreate] = Form.useForm<ProductFormValues>();
+
+  const isLogged = localStorage.getItem("loggedUser");
+
+  // ===============================
+  // LOAD PRODUCTS — EXECUTA SOMENTE UMA VEZ
+  // ===============================
   useEffect(() => {
     const loadProducts = async () => {
       try {
         setLoading(true);
 
-        // 1️⃣ Buscar API
         const res = await fetch("https://fakestoreapi.com/products");
         const apiProducts: ApiProduct[] = await res.json();
 
@@ -81,17 +103,16 @@ export default function ProductsPage() {
           rating: p.rating ?? { rate: 0, count: 0 },
         }));
 
-        // 2️⃣ Buscar os produtos criados pelo usuário
         const localProducts: Product[] = JSON.parse(
           localStorage.getItem("products") || "[]"
         );
 
-        // 3️⃣ Combinar tudo
-        const combined = [...formattedApi, ...localProducts];
+        // 🔥 REMOVER DUPLICADOS DE ID
+        const all = [...formattedApi, ...localProducts];
+        const unique = Array.from(new Map(all.map((p) => [p.id, p])).values());
 
-        dispatch(setProducts(combined));
-      } catch (err) {
-        console.error(err);
+        dispatch(setProducts(unique));
+      } catch {
         message.error("Erro ao carregar produtos.");
       } finally {
         setLoading(false);
@@ -99,22 +120,14 @@ export default function ProductsPage() {
     };
 
     loadProducts();
-  }, [dispatch]);
+  }, []); // <-- NUNCA mais usar [dispatch], isso trava e duplica tudo
 
-  // ============================================================
-  // 2. EDIT PRODUCT (DRAWER)
-  // ============================================================
+  // ===============================
+  // EDIT PRODUCT
+  // ===============================
   const openEditDrawer = (product: Product) => {
     setCurrent(product);
-
-    formEdit.setFieldsValue({
-      title: product.title,
-      price: product.price,
-      description: product.description,
-      category: product.category,
-      image: product.image,
-    });
-
+    formEdit.setFieldsValue({ ...product });
     setEditOpen(true);
   };
 
@@ -129,29 +142,54 @@ export default function ProductsPage() {
       };
 
       dispatch(updateProduct(updated));
-      message.success("Produto atualizado com sucesso!");
+      message.success("Produto atualizado!");
       setEditOpen(false);
     });
   };
 
-  // ============================================================
-  // 3. DELETE PRODUCT (Popconfirm)
-  // ============================================================
+  // ===============================
+  // DELETE PRODUCT
+  // ===============================
   const handleDelete = (id: number) => {
     dispatch(deleteProduct(id));
     message.success("Produto removido!");
   };
 
-  // ============================================================
-  // 4. ONLY USER PRODUCTS ARE EDITABLE (ID > 1000)
-  // FakeStore API IDs vão de 1 a 20
-  // IDs de produtos criados pelo usuário = Date.now() (bem maior)
-  // ============================================================
+  // ===============================
+  // CREATE PRODUCT
+  // ===============================
+  const handleCreateProduct = () => {
+    formCreate.validateFields().then((values) => {
+      const newProduct: Product = {
+        id: Date.now(), // ID único
+        title: values.title,
+        description: values.description,
+        price: Number(values.price),
+        category: values.category,
+        image: values.image,
+        rating: { rate: 0, count: 0 },
+      };
+
+      dispatch(addProduct(newProduct));
+      message.success("Produto criado!");
+
+      formCreate.resetFields();
+      setCreateOpen(false);
+    });
+  };
+
   const isUserProduct = (id: number) => id > 1000;
 
-  // ============================================================
-  // 5. RENDER
-  // ============================================================
+  // ===============================
+  // FILTER SEARCH
+  // ===============================
+  const filteredProducts = products.filter((p) =>
+    p.title.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  // ===============================
+  // RENDER
+  // ===============================
   return (
     <div style={{ padding: 24 }}>
       {/* HEADER */}
@@ -163,71 +201,78 @@ export default function ProductsPage() {
         }}
       >
         <Title level={3}>List of Products</Title>
+
+        {isLogged && (
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => setCreateOpen(true)}
+          >
+            New Product
+          </Button>
+        )}
       </div>
 
-      {/* LOADING */}
+      {/* SEARCH */}
+      <Input
+        placeholder="Search product..."
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)}
+        style={{
+          maxWidth: 350,
+          marginBottom: 20,
+          padding: 6,
+        }}
+      />
+
+      {/* LIST */}
       {loading ? (
         <p>Carregando...</p>
       ) : (
         <Row gutter={[16, 16]}>
-          {products.map((p) => (
+          {filteredProducts.map((p) => (
             <Col xs={24} sm={12} md={8} lg={6} key={p.id}>
               <Card
                 hoverable
+                style={{ width: "100%" }}
                 bodyStyle={{ padding: 16 }}
                 actions={
                   isUserProduct(p.id)
                     ? [
-                      <Button
-                        key="edit"
-                        type="text"
-                        icon={<EditOutlined />}
-                        onClick={() => openEditDrawer(p)}
-                      />,
-                      <Popconfirm
-                        key="delete"
-                        title="Excluir produto?"
-                        okText="Sim"
-                        cancelText="Cancelar"
-                        onConfirm={() => handleDelete(p.id)}
-                      >
-                        <Button type="text" danger icon={<DeleteOutlined />} />
-                      </Popconfirm>,
-                    ]
+                        <Button
+                          type="text"
+                          icon={<EditOutlined />}
+                          onClick={() => openEditDrawer(p)}
+                        />,
+                        <Popconfirm
+                          title="Excluir produto?"
+                          okText="Sim"
+                          cancelText="Cancelar"
+                          onConfirm={() => handleDelete(p.id)}
+                        >
+                          <Button type="text" danger icon={<DeleteOutlined />} />
+                        </Popconfirm>,
+                      ]
                     : undefined
                 }
               >
                 <Image
                   src={p.image}
+                  fallback={default_image}
                   height={150}
                   preview={false}
-                  style={{
-                    objectFit: "contain",
-                    marginBottom: 12,
-                    width: "100%",
-                  }}
+                  style={{ objectFit: "contain", marginBottom: 12 }}
                 />
 
-                <h4 style={{ minHeight: 40 }}>{p.title}</h4>
+                <h4>{p.title}</h4>
 
-                <Rate
-                  disabled
-                  value={p.rating.rate}
-                  allowHalf
-                  style={{ fontSize: 14 }}
-                />
+                <Rate disabled value={p.rating.rate} allowHalf />
+                <span> ({p.rating.count})</span>
 
-                <span style={{ marginLeft: 8, color: "#555" }}>
-                  ({p.rating.count})
-                </span>
+                <p>{p.description.substring(0, 60)}...</p>
 
-                <p style={{ minHeight: 50, marginTop: 8 }}>
-                  {p.description.substring(0, 60)}...
-                </p>
+                <p style={{ fontWeight: "bold" }}>US$ {p.price}</p>
 
-                <p style={{ fontWeight: "bold" }}>Price: US$ {p.price}</p>
-
-                {/* ⭐ BUY aparece apenas em produtos que NÃO são do usuário */}
                 {!isUserProduct(p.id) && (
                   <Button
                     type="primary"
@@ -242,20 +287,19 @@ export default function ProductsPage() {
                           quantity: 1,
                         })
                       );
-                      message.success(`${p.title} adicionado ao carrinho!`);
+                      message.success("Adicionado ao carrinho!");
                     }}
                   >
                     Buy
                   </Button>
                 )}
               </Card>
-
             </Col>
           ))}
         </Row>
       )}
 
-      {/* DRAWER DE EDIÇÃO */}
+      {/* EDIT DRAWER */}
       <Drawer
         title="Edit Product"
         open={editOpen}
@@ -267,7 +311,53 @@ export default function ProductsPage() {
           </Button>
         }
       >
-        <Form<ProductFormValues> layout="vertical" form={formEdit}>
+        <Form form={formEdit} layout="vertical">
+          <Form.Item name="title" label="Title" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            name="description"
+            label="Description"
+            rules={[{ required: true }]}
+          >
+            <Input.TextArea rows={4} />
+          </Form.Item>
+
+          <Form.Item name="category" label="Category" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+
+          <Form.Item name="price" label="Price" rules={[{ required: true }]}>
+            <Input type="number" />
+          </Form.Item>
+
+          <Form.Item name="image" label="Image URL" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+        </Form>
+      </Drawer>
+
+      {/* CREATE MODAL */}
+      <Modal
+        title="New Product"
+        open={createOpen}
+        onCancel={() => setCreateOpen(false)}
+        onOk={handleCreateProduct}
+        okText="Save"
+        cancelText="Cancel"
+        width={500}
+      >
+        <Form form={formCreate} layout="vertical">
+          {formCreate.getFieldValue("image") && (
+            <Image
+              src={formCreate.getFieldValue("image")}
+              fallback={default_image}
+              height={120}
+              style={{ marginBottom: 16 }}
+            />
+          )}
+
           <Form.Item
             label="Title"
             name="title"
@@ -289,7 +379,23 @@ export default function ProductsPage() {
             name="category"
             rules={[{ required: true, message: "Category is required" }]}
           >
-            <Input />
+            <select
+              style={{
+                width: "100%",
+                height: 32,
+                border: "1px solid #d9d9d9",
+                borderRadius: 6,
+                paddingInline: 8,
+              }}
+            >
+              <option value="" disabled selected>
+                Select a category
+              </option>
+              <option value="electronics">Electronics</option>
+              <option value="jewelery">Jewelery</option>
+              <option value="men clothing">Men Clothing</option>
+              <option value="women clothing">Women Clothing</option>
+            </select>
           </Form.Item>
 
           <Form.Item
@@ -297,18 +403,18 @@ export default function ProductsPage() {
             name="price"
             rules={[{ required: true, message: "Price is required" }]}
           >
-            <Input type="number" min={0} step="0.01" />
+            <Input type="number" min={0} step="0.01" prefix="$" />
           </Form.Item>
 
           <Form.Item
             label="Image URL"
             name="image"
-            rules={[{ required: true, message: "Image URL is required" }]}
+            rules={[{ required: true, message: "Image is required" }]}
           >
             <Input />
           </Form.Item>
         </Form>
-      </Drawer>
+      </Modal>
     </div>
   );
 }
