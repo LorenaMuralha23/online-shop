@@ -103,9 +103,15 @@ export default function ProductsPage() {
           rating: p.rating ?? { rate: 0, count: 0 },
         }));
 
-        const localProducts: Product[] = JSON.parse(
-          localStorage.getItem("products") || "[]"
-        );
+        const storedUser = localStorage.getItem("loggedUser");
+        let localProducts: Product[] = [];
+
+        if (storedUser) {
+          const user = JSON.parse(storedUser);
+          const key = `products_${user.email}`;
+          localProducts = JSON.parse(localStorage.getItem(key) || "[]");
+        }
+
 
         // 🔥 REMOVER DUPLICADOS DE ID
         const all = [...formattedApi, ...localProducts];
@@ -239,20 +245,20 @@ export default function ProductsPage() {
                 actions={
                   isUserProduct(p.id)
                     ? [
-                        <Button
-                          type="text"
-                          icon={<EditOutlined />}
-                          onClick={() => openEditDrawer(p)}
-                        />,
-                        <Popconfirm
-                          title="Excluir produto?"
-                          okText="Sim"
-                          cancelText="Cancelar"
-                          onConfirm={() => handleDelete(p.id)}
-                        >
-                          <Button type="text" danger icon={<DeleteOutlined />} />
-                        </Popconfirm>,
-                      ]
+                      <Button
+                        type="text"
+                        icon={<EditOutlined />}
+                        onClick={() => openEditDrawer(p)}
+                      />,
+                      <Popconfirm
+                        title="Excluir produto?"
+                        okText="Sim"
+                        cancelText="Cancelar"
+                        onConfirm={() => handleDelete(p.id)}
+                      >
+                        <Button type="text" danger icon={<DeleteOutlined />} />
+                      </Popconfirm>,
+                    ]
                     : undefined
                 }
               >

@@ -6,36 +6,70 @@ interface ProductsState {
   list: Product[];
 }
 
+function getUserKey() {
+  const stored = localStorage.getItem("loggedUser");
+  if (!stored) return null;
+
+  const user = JSON.parse(stored);
+  return `products_${user.email}`;
+}
+
 const initialState: ProductsState = {
-  list: JSON.parse(localStorage.getItem("products") || "[]"),
+  list: [],
 };
 
 const productsSlice = createSlice({
   name: "products",
   initialState,
   reducers: {
+    // Carregar lista para o Redux
     setProducts: (state, action: PayloadAction<Product[]>) => {
       state.list = action.payload;
-      localStorage.setItem("products", JSON.stringify(state.list));
+
+      const key = getUserKey();
+      if (key) {
+        const userProducts = state.list.filter(p => p.id > 1000);
+        localStorage.setItem(key, JSON.stringify(userProducts));
+      }
     },
 
+    // Criar novo produto
     addProduct: (state, action: PayloadAction<Product>) => {
       state.list.push(action.payload);
-      localStorage.setItem("products", JSON.stringify(state.list));
+
+      const key = getUserKey();
+      if (key) {
+        const userProducts = state.list.filter(p => p.id > 1000);
+        localStorage.setItem(key, JSON.stringify(userProducts));
+      }
     },
 
+    // Atualizar produto
     updateProduct: (state, action: PayloadAction<Product>) => {
       const index = state.list.findIndex(p => p.id === action.payload.id);
-      state.list[index] = action.payload;
-      localStorage.setItem("products", JSON.stringify(state.list));
+      if (index !== -1) state.list[index] = action.payload;
+
+      const key = getUserKey();
+      if (key) {
+        const userProducts = state.list.filter(p => p.id > 1000);
+        localStorage.setItem(key, JSON.stringify(userProducts));
+      }
     },
 
+    // Remover produto
     deleteProduct: (state, action: PayloadAction<number>) => {
       state.list = state.list.filter(p => p.id !== action.payload);
-      localStorage.setItem("products", JSON.stringify(state.list));
-    }
+
+      const key = getUserKey();
+      if (key) {
+        const userProducts = state.list.filter(p => p.id > 1000);
+        localStorage.setItem(key, JSON.stringify(userProducts));
+      }
+    },
   },
 });
 
-export const { setProducts, addProduct, updateProduct, deleteProduct } = productsSlice.actions;
+export const { setProducts, addProduct, updateProduct, deleteProduct } =
+  productsSlice.actions;
+
 export default productsSlice.reducer;
