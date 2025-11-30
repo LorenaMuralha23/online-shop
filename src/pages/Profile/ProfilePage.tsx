@@ -25,7 +25,7 @@ export default function ProfilePage() {
     setUser(JSON.parse(stored));
   }, [navigate]);
 
-  if (!user) return null; // evita piscar tela
+  if (!user) return null; // evita piscar
 
   return (
     <div
