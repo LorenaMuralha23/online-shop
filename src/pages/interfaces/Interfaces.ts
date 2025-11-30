@@ -28,3 +28,31 @@ export interface LoggedUser {
   lastName: string;
   email: string;
 }
+
+export interface Client {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  createdAt: string;
+  address: string;
+  phone: string;
+  status: "activated" | "deactivated";
+}
+
+export interface ApiUser {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  address: {
+    street: string;
+    suite: string;
+    city: string;
+  };
+}
+
+export interface NavbarProps {
+  mode: "light" | "dark";
+  setMode: (m: "light" | "dark") => void;
+}
