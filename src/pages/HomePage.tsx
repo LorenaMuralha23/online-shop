@@ -49,12 +49,12 @@ export default function HomePage() {
             xs: 1,
             sm: 2,
             md: 3,
-            lg: 5, // 5 colunas como no print
+            lg: 5,
           }}
-          dataSource={products.slice(0, 5)} // os 5 primeiros produtos
+          dataSource={products.slice(0, 5)}
           renderItem={(p) => (
             <List.Item>
-              <ProductItem product={p} />
+              <ProductItem product={p} showViewButton />
             </List.Item>
           )}
         />

@@ -1,92 +1,73 @@
-import { Image, Typography, Rate, Button, Flex, theme, message } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Card, Image, Rate, Button } from "antd";
+import { EyeOutlined } from "@ant-design/icons";
+import default_image from "../../assets/default_image.jpeg";
 import type { Product } from "../../pages/interfaces/Interfaces";
 
-const { Title, Text, Paragraph } = Typography;
-
-interface Props {
+interface ProductItemProps {
   product: Product;
+  showViewButton?: boolean;
 }
 
-export default function ProductItem({ product }: Props) {
-  const { token } = theme.useToken();
-  const navigate = useNavigate();
+export default function ProductItem({ product, showViewButton }: ProductItemProps) {
+  const [visible, setVisible] = useState(false);
 
-  // Verificar usuário logado
-  const user = JSON.parse(localStorage.getItem("loggedUser") || "null");
-
-  // Handle Buy
-  const handleBuy = () => {
-    if (!user) {
-      message.error("Você precisa estar logado para comprar.");
-      navigate("/login");
-      return;
-    }
-
-    message.success("Produto adicionado ao carrinho!");
+  const openPreview = (e: React.MouseEvent) => {
+    e.stopPropagation(); 
+    setVisible(true);
   };
 
   return (
-    <div
-      style={{
-        background: token.colorBgContainer,
-        border: `1px solid ${token.colorBorderSecondary}`,
-        borderRadius: token.borderRadiusLG,
-        padding: token.paddingLG,
-        boxShadow: token.boxShadowSecondary,
-        width: "100%",
-        maxWidth: 320,
-        minHeight: 380,
-        margin: "0 auto",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-      }}
-    >
-      {/* IMAGEM */}
-      <Flex justify="center" style={{ marginBottom: token.marginMD }}>
+    <>
+      <Card
+        hoverable
+        style={{ width: "100%" }}
+        bodyStyle={{ padding: 14 }}
+        actions={
+          showViewButton
+            ? [
+                <Button
+                  key="view"
+                  type="text"
+                  icon={<EyeOutlined />}
+                  onClick={openPreview}
+                />,
+              ]
+            : undefined
+        }
+      >
+        {/* A imagem principal, sem preview */}
         <Image
           src={product.image}
-          fallback="https://via.placeholder.com/150?text=No+Image"
-          height={120}
+          fallback={default_image}
           preview={false}
-          style={{ objectFit: "contain" }}
+          height={150}
+          style={{ width: "100%", objectFit: "contain", marginBottom: 12 }}
         />
-      </Flex>
 
-      {/* TÍTULO */}
-      <Title
-        level={5}
-        ellipsis
-        style={{ marginBottom: token.marginXS }}
-      >
-        {product.title}
-      </Title>
+        <h4 style={{ minHeight: 40 }}>{product.title}</h4>
 
-      {/* RATING */}
-      <Flex align="center" gap={4} style={{ marginBottom: token.marginXS }}>
-        <Rate disabled value={product.rating.rate} allowHalf style={{ fontSize: 14 }} />
-        <Text type="secondary">({product.rating.count})</Text>
-      </Flex>
+        <Rate disabled value={product.rating.rate} allowHalf />
+        <span style={{ marginLeft: 6 }}>({product.rating.count})</span>
 
-      {/* DESCRIÇÃO */}
-      <Paragraph
-        type="secondary"
-        ellipsis={{ rows: 2 }}
-        style={{ marginBottom: token.marginXS }}
-      >
-        {product.description}
-      </Paragraph>
+        <p style={{ marginTop: 8 }}>
+          {product.description.substring(0, 50)}...
+        </p>
 
-      {/* PREÇO */}
-      <Text strong style={{ marginBottom: token.marginSM }}>
-        Price: US$ {product.price}
-      </Text>
+        <p style={{ fontWeight: "bold" }}>US$ {product.price}</p>
+      </Card>
 
-      {/* BOTÃO BUY */}
-      <Button type="primary" block onClick={handleBuy}>
-        Buy
-      </Button>
-    </div>
+      {/* PREVIEW NATIVO DO ANT DESIGN */}
+      <Image
+        src={product.image}
+        fallback={default_image}
+        preview={{
+          visible,
+          src: product.image,
+          onVisibleChange: (v) => setVisible(v),
+        }}
+        style={{ display: "none" }} // não mostra esta imagem na tela
+      />
+    </>
   );
 }
