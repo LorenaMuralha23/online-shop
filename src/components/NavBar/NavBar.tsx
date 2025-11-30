@@ -49,7 +49,11 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
 
   useEffect(() => {
     const p = new URLSearchParams(location.search);
-    setSearch(p.get("q") || "");
+    const value = p.get("q") || "";
+
+    if (value !== search) {
+      setSearch(value);
+    }
   }, [location.search]);
 
   const applySearch = (value: string) => {
@@ -61,7 +65,12 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
     }
 
     const newParams = new URLSearchParams(location.search);
-    trimmed ? newParams.set("q", trimmed) : newParams.delete("q");
+    if (trimmed) {
+      newParams.set("q", trimmed);
+    } else {
+      newParams.delete("q");
+    }
+
 
     navigate({
       pathname: "/products",
