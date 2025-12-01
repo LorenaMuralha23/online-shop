@@ -19,7 +19,7 @@ import {
   DeleteOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
-import default_image from "../../assets/default_image.jpeg";
+import default_image from "../../assets/default_image.png";
 
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../store";

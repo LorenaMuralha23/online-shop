@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, Image, Rate, Button } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
-import default_image from "../../assets/default_image.jpeg";
+import default_image from "../../assets/default_image.png";
 import type { Product } from "../../pages/interfaces/Interfaces";
 
 interface ProductItemProps {
