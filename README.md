@@ -165,8 +165,6 @@ Para acessar as funcionalidades internas da loja — como cadastrar produtos, vi
 
 1. Ao abrir a aplicação, o usuário deve clicar no botão "Criar Cadastro", abaixo do botão de LogIn, para criar uma conta.
 
-![Botão de Cadastro](image-1.png)
-
 2. Após o cadastro, o usuário pode fazer login normalmente.
 
 Sem estar autenticado, páginas restritas exibirão mensagens informando a necessidade de login.
