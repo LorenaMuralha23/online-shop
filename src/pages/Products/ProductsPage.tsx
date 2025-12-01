@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-  Row,
-  Col,
-  Card,
   Typography,
   Image,
   Button,
@@ -13,6 +10,10 @@ import {
   Popconfirm,
   message,
   Modal,
+  Flex,
+  theme,
+  Col,
+  Row,
 } from "antd";
 import {
   EditOutlined,
@@ -33,7 +34,7 @@ import {
 import type { Product } from "../interfaces/Interfaces";
 import { addToCart } from "../../store/cartSlice";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 // ===============================
 // FORM TYPES
@@ -66,9 +67,7 @@ export default function ProductsPage() {
   const dispatch = useDispatch<AppDispatch>();
   const products = useSelector((state: RootState) => state.products.list);
 
-  const [loading, setLoading] = useState(false);
-
-  // SEARCH TEXT
+  const [, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
 
   // EDIT
@@ -82,8 +81,10 @@ export default function ProductsPage() {
 
   const isLogged = localStorage.getItem("loggedUser");
 
+  const { token } = theme.useToken();
+
   // ===============================
-  // LOAD PRODUCTS — EXECUTA SOMENTE UMA VEZ
+  // LOAD PRODUCTS
   // ===============================
   useEffect(() => {
     const loadProducts = async () => {
@@ -112,8 +113,6 @@ export default function ProductsPage() {
           localProducts = JSON.parse(localStorage.getItem(key) || "[]");
         }
 
-
-        // 🔥 REMOVER DUPLICADOS DE ID
         const all = [...formattedApi, ...localProducts];
         const unique = Array.from(new Map(all.map((p) => [p.id, p])).values());
 
@@ -126,7 +125,7 @@ export default function ProductsPage() {
     };
 
     loadProducts();
-  }, []); // <-- NUNCA mais usar [dispatch], isso trava e duplica tudo
+  }, []);
 
   // ===============================
   // EDIT PRODUCT
@@ -167,7 +166,7 @@ export default function ProductsPage() {
   const handleCreateProduct = () => {
     formCreate.validateFields().then((values) => {
       const newProduct: Product = {
-        id: Date.now(), // ID único
+        id: Date.now(),
         title: values.title,
         description: values.description,
         price: Number(values.price),
@@ -177,7 +176,7 @@ export default function ProductsPage() {
       };
 
       dispatch(addProduct(newProduct));
-      message.success("Produto criado!");
+      message.success("Produto cadastrado com sucesso!");
 
       formCreate.resetFields();
       setCreateOpen(false);
@@ -186,9 +185,7 @@ export default function ProductsPage() {
 
   const isUserProduct = (id: number) => id > 1000;
 
-  // ===============================
-  // FILTER SEARCH
-  // ===============================
+  // SEARCH FILTER
   const filteredProducts = products.filter((p) =>
     p.title.toLowerCase().includes(searchText.toLowerCase())
   );
@@ -199,13 +196,7 @@ export default function ProductsPage() {
   return (
     <div style={{ padding: 24 }}>
       {/* HEADER */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: 20,
-        }}
-      >
+      <Flex justify="space-between" align="center" style={{ marginBottom: 20 }}>
         <Title level={3}>List of Products</Title>
 
         {isLogged && (
@@ -217,7 +208,7 @@ export default function ProductsPage() {
             New Product
           </Button>
         )}
-      </div>
+      </Flex>
 
       {/* SEARCH */}
       <Input
@@ -232,54 +223,72 @@ export default function ProductsPage() {
       />
 
       {/* LIST */}
-      {loading ? (
-        <p>Carregando...</p>
-      ) : (
-        <Row gutter={[16, 16]}>
-          {filteredProducts.map((p) => (
-            <Col xs={24} sm={12} md={8} lg={6} key={p.id}>
-              <Card
-                hoverable
-                style={{ width: "100%" }}
-                bodyStyle={{ padding: 16 }}
-                actions={
-                  isUserProduct(p.id)
-                    ? [
-                      <Button
-                        type="text"
-                        icon={<EditOutlined />}
-                        onClick={() => openEditDrawer(p)}
-                      />,
-                      <Popconfirm
-                        title="Excluir produto?"
-                        okText="Sim"
-                        cancelText="Cancelar"
-                        onConfirm={() => handleDelete(p.id)}
-                      >
-                        <Button type="text" danger icon={<DeleteOutlined />} />
-                      </Popconfirm>,
-                    ]
-                    : undefined
-                }
+      {/* LISTA DE PRODUTOS — GRID PERFEITO */}
+      <Row gutter={[24, 24]}>
+        {filteredProducts.map((p) => (
+          <Col xs={24} sm={12} md={8} lg={6} key={p.id}>
+            <div
+              style={{
+                padding: 16,
+                borderRadius: 12,
+                border: `1px solid ${token.colorBorderSecondary}`,
+                background: token.colorBgContainer,
+                display: "flex",
+                flexDirection: "column",
+                height: 420, // 🔥 Agora funciona corretamente
+              }}
+            >
+              {/* IMAGEM */}
+              <Image
+                src={p.image}
+                fallback={default_image}
+                height={160}
+                preview={false}
+                style={{ objectFit: "contain", marginBottom: 16 }}
+              />
+
+              {/* TÍTULO */}
+              <Title
+                level={5}
+                style={{ height: 52, overflow: "hidden", marginBottom: 8 }}
               >
-                <Image
-                  src={p.image}
-                  fallback={default_image}
-                  height={150}
-                  preview={false}
-                  style={{ objectFit: "contain", marginBottom: 12 }}
-                />
+                {p.title}
+              </Title>
 
-                <h4>{p.title}</h4>
-
+              {/* AVALIAÇÃO */}
+              <div style={{ marginBottom: 8 }}>
                 <Rate disabled value={p.rating.rate} allowHalf />
-                <span> ({p.rating.count})</span>
+                <Text> ({p.rating.count})</Text>
+              </div>
 
-                <p>{p.description.substring(0, 60)}...</p>
+              {/* DESCRIÇÃO LIMITADA */}
+              <Text style={{ height: 48, overflow: "hidden", display: "block" }}>
+                {p.description.substring(0, 85)}...
+              </Text>
 
-                <p style={{ fontWeight: "bold" }}>US$ {p.price}</p>
+              {/* PREÇO */}
+              <Text strong style={{ marginTop: 8 }}>
+                US$ {p.price}
+              </Text>
 
-                {!isUserProduct(p.id) && (
+              {/* BOTÕES FIXADOS EMBAIXO */}
+              <Flex style={{ marginTop: "auto", gap: 8 }}>
+                {isUserProduct(p.id) ? (
+                  <>
+                    <Button
+                      icon={<EditOutlined />}
+                      onClick={() => openEditDrawer(p)}
+                    />
+                    <Popconfirm
+                      title="Excluir produto?"
+                      okText="Sim"
+                      cancelText="Cancelar"
+                      onConfirm={() => handleDelete(p.id)}
+                    >
+                      <Button danger icon={<DeleteOutlined />} />
+                    </Popconfirm>
+                  </>
+                ) : (
                   <Button
                     type="primary"
                     block
@@ -299,11 +308,12 @@ export default function ProductsPage() {
                     Buy
                   </Button>
                 )}
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      )}
+              </Flex>
+            </div>
+          </Col>
+        ))}
+      </Row>
+
 
       {/* EDIT DRAWER */}
       <Drawer
@@ -353,6 +363,8 @@ export default function ProductsPage() {
         okText="Save"
         cancelText="Cancel"
         width={500}
+        maskClosable={false}
+        keyboard={false}
       >
         <Form form={formCreate} layout="vertical">
           {formCreate.getFieldValue("image") && (
@@ -367,7 +379,7 @@ export default function ProductsPage() {
           <Form.Item
             label="Title"
             name="title"
-            rules={[{ required: true, message: "Title is required" }]}
+            rules={[{ required: true }]}
           >
             <Input />
           </Form.Item>
@@ -375,7 +387,7 @@ export default function ProductsPage() {
           <Form.Item
             label="Description"
             name="description"
-            rules={[{ required: true, message: "Description is required" }]}
+            rules={[{ required: true }]}
           >
             <Input.TextArea rows={4} />
           </Form.Item>
@@ -383,7 +395,7 @@ export default function ProductsPage() {
           <Form.Item
             label="Category"
             name="category"
-            rules={[{ required: true, message: "Category is required" }]}
+            rules={[{ required: true }]}
           >
             <select
               style={{
@@ -407,7 +419,7 @@ export default function ProductsPage() {
           <Form.Item
             label="Price"
             name="price"
-            rules={[{ required: true, message: "Price is required" }]}
+            rules={[{ required: true }]}
           >
             <Input type="number" min={0} step="0.01" prefix="$" />
           </Form.Item>
@@ -415,7 +427,7 @@ export default function ProductsPage() {
           <Form.Item
             label="Image URL"
             name="image"
-            rules={[{ required: true, message: "Image is required" }]}
+            rules={[{ required: true }]}
           >
             <Input />
           </Form.Item>
