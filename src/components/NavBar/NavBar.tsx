@@ -38,13 +38,11 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Usuário logado
   const [user, setUser] = useState<LoggedUser | null>(() => {
     const stored = localStorage.getItem("loggedUser");
     return stored ? JSON.parse(stored) : null;
   });
 
-  // Controle da busca
   const params = new URLSearchParams(location.search);
   const initialQuery = params.get("q") || "";
   const [search, setSearch] = useState(initialQuery);
@@ -72,39 +70,16 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
     navigate({ pathname: "/products", search: newParams.toString() });
   };
 
-  // =============================
-  //  🔵 DROPDOWN: Perfil + Logout
-  // =============================
   const handleLogout = () => {
     localStorage.removeItem("loggedUser");
     setUser(null);
     navigate("/login");
   };
 
-  const userMenu = (
-    <Menu
-      items={[
-        {
-          key: "profile",
-          label: "Perfil",
-          onClick: () => navigate("/profile"),
-        },
-        {
-          type: "divider",
-        },
-        {
-          key: "logout",
-          danger: true,
-          label: "Logout",
-          onClick: handleLogout,
-        },
-      ]}
-    />
-  );
+  
 
   return (
     <>
-      {/* 🟦 DESKTOP NAVBAR */}
       <Header
         style={{
           background: "#e4f2ff",
@@ -118,7 +93,6 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
           gap: 12,
         }}
       >
-        {/* LOGO + LINKS */}
         <div
           style={{
             display: "flex",
@@ -126,7 +100,6 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
             gap: 25,
           }}
         >
-          {/* Hamburguer - mobile */}
           <Button
             type="text"
             className="mobile-menu"
@@ -135,7 +108,6 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
             style={{ display: "none" }}
           />
 
-          {/* Logo */}
           <Link
             to="/"
             style={{
@@ -148,7 +120,6 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
             Online <span style={{ color: "#0077cc" }}>Shop</span>
           </Link>
 
-          {/* MENU - Desktop */}
           <div className="desktop-menu" style={{ display: "flex", gap: 20 }}>
             <Link to="/" style={{ fontSize: 16 }}>
               Home
@@ -165,7 +136,6 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
           </div>
         </div>
 
-        {/* SEARCH */}
         <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
           <Search
             placeholder="Find Product"
@@ -177,7 +147,6 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
           />
         </div>
 
-        {/* USER / THEME / CART */}
         <Space
           size="large"
           className="desktop-menu"
@@ -247,7 +216,6 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
         </Space>
       </Header>
 
-      {/* 🟪 MOBILE DRAWER */}
       <Drawer
         title="Menu"
         placement="left"
@@ -290,7 +258,6 @@ export default function Navbar({ mode, setMode }: NavbarProps) {
         </Menu>
       </Drawer>
 
-      {/* CSS RESPONSIVO */}
       <style>
         {`
           @media (max-width: 900px) {

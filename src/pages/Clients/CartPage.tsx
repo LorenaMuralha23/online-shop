@@ -30,7 +30,6 @@ export default function CartPage() {
   const user = localStorage.getItem("loggedUser");
   const cart = useSelector((state: RootState) => state.cart.items);
 
-  // Proibir acesso sem login
   useEffect(() => {
     if (!user) {
       message.warning("Você deve estar logado para acessar ao carrinho.");
@@ -38,7 +37,6 @@ export default function CartPage() {
     }
   }, [user]);
 
-  // Calcular total
   const total = cart.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0
@@ -107,7 +105,6 @@ export default function CartPage() {
 
           <Divider />
 
-          {/* TOTAL */}
           <div
             style={{
               display: "flex",
@@ -119,7 +116,6 @@ export default function CartPage() {
             <Title level={4}>US$ {total.toFixed(2)}</Title>
           </div>
 
-          {/* BOTÕES FINAIS */}
           <Button
             type="primary"
             block

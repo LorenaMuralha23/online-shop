@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { Product } from "../pages/interfaces/Interfaces";
+import type { Product } from "../pages/Interfaces/Interfaces";
 
 interface ProductsState {
   list: Product[];
@@ -22,7 +22,6 @@ const productsSlice = createSlice({
   name: "products",
   initialState,
   reducers: {
-    // Carregar lista para o Redux
     setProducts: (state, action: PayloadAction<Product[]>) => {
       state.list = action.payload;
 
@@ -33,7 +32,6 @@ const productsSlice = createSlice({
       }
     },
 
-    // Criar novo produto
     addProduct: (state, action: PayloadAction<Product>) => {
       state.list.push(action.payload);
 
@@ -44,7 +42,6 @@ const productsSlice = createSlice({
       }
     },
 
-    // Atualizar produto
     updateProduct: (state, action: PayloadAction<Product>) => {
       const index = state.list.findIndex(p => p.id === action.payload.id);
       if (index !== -1) state.list[index] = action.payload;
@@ -56,7 +53,6 @@ const productsSlice = createSlice({
       }
     },
 
-    // Remover produto
     deleteProduct: (state, action: PayloadAction<number>) => {
       state.list = state.list.filter(p => p.id !== action.payload);
 

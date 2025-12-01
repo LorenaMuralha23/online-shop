@@ -58,7 +58,7 @@ export interface NavbarProps {
 }
 
 export interface CartItem {
-  id: number;            // id do produto
+  id: number;            
   title: string;
   image: string;
   price: number;

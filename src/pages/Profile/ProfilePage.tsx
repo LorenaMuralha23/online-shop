@@ -25,7 +25,7 @@ export default function ProfilePage() {
     setUser(JSON.parse(stored));
   }, [navigate]);
 
-  if (!user) return null; // evita piscar
+  if (!user) return null;
 
   return (
     <div

@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { Client } from "../pages/interfaces/Interfaces";
+import type { Client } from "../pages/Interfaces/Interfaces";
 
 
 interface ClientsState {

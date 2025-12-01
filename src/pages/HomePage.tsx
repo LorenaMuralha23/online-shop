@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Typography, Spin, List, theme } from "antd";
 import ProductItem from "../components/Products/ProductItem";
-import type { Product } from "./interfaces/Interfaces";
+import type { Product } from "./Interfaces/Interfaces";
 
 const { Title } = Typography;
 
@@ -32,10 +32,8 @@ export default function HomePage() {
 
   return (
     <div style={{ padding: token.paddingXL, textAlign: "center" }}>
-      {/* TÍTULO PRINCIPAL */}
       <Title level={2}>Welcome to the Shop</Title>
 
-      {/* SUBTÍTULO */}
       <Title level={4} style={{ marginTop: token.marginSM }}>
         Top 5 Products
       </Title>

@@ -1,6 +1,6 @@
 import { Card, Form, Input, Button, Typography, message } from "antd";
 import { useNavigate, Link } from "react-router-dom";
-import type { RegisterFormValues } from "../interfaces/Interfaces";
+import type { RegisterFormValues } from "../Interfaces/Interfaces";
 
 const { Title, Text } = Typography;
 
@@ -10,10 +10,8 @@ export default function RegisterPage() {
   const handleRegister = (values: RegisterFormValues) => {
     const { firstName, lastName, email, password } = values;
 
-    // Recuperar usuários existentes
     const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
 
-    // Verificar se e-mail já está cadastrado
     const emailExists = existingUsers.some((u: RegisterFormValues) => u.email === email);
 
     if (emailExists) {
@@ -21,7 +19,6 @@ export default function RegisterPage() {
       return;
     }
 
-    // Criar novo usuário
     const newUser = {
       id: Date.now(),
       firstName,
@@ -30,7 +27,6 @@ export default function RegisterPage() {
       password,
     };
 
-    // Salvar no localStorage
     const updatedUsers = [...existingUsers, newUser];
     localStorage.setItem("users", JSON.stringify(updatedUsers));
 
@@ -51,7 +47,6 @@ export default function RegisterPage() {
         paddingTop: 40,
       }}
     >
-      {/* BOTÃO DE VOLTAR */}
       <div style={{ position: "absolute", top: 20, left: 20 }}>
         <Button type="default" onClick={() => navigate("/")}>
           ← Voltar para Home
@@ -106,7 +101,6 @@ export default function RegisterPage() {
           </Form.Item>
         </Form>
 
-        {/* TEXTO DE LOGIN */}
         <div style={{ textAlign: "center", marginTop: 10 }}>
           <Text>Já possui conta? </Text>
           <Link to="/login">Entrar</Link>

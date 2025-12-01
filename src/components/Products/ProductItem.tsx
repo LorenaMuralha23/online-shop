@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, Image, Rate, Button } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import default_image from "../../assets/default_image.png";
-import type { Product } from "../../pages/interfaces/Interfaces";
+import type { Product } from "../../pages/Interfaces/Interfaces";
 
 interface ProductItemProps {
   product: Product;
@@ -13,7 +13,7 @@ export default function ProductItem({ product, showViewButton }: ProductItemProp
   const [visible, setVisible] = useState(false);
 
   const openPreview = (e: React.MouseEvent) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
     setVisible(true);
   };
 
@@ -26,17 +26,16 @@ export default function ProductItem({ product, showViewButton }: ProductItemProp
         actions={
           showViewButton
             ? [
-                <Button
-                  key="view"
-                  type="text"
-                  icon={<EyeOutlined />}
-                  onClick={openPreview}
-                />,
-              ]
+              <Button
+                key="view"
+                type="text"
+                icon={<EyeOutlined />}
+                onClick={openPreview}
+              />,
+            ]
             : undefined
         }
       >
-        {/* A imagem principal, sem preview */}
         <Image
           src={product.image}
           fallback={default_image}
@@ -57,7 +56,6 @@ export default function ProductItem({ product, showViewButton }: ProductItemProp
         <p style={{ fontWeight: "bold" }}>US$ {product.price}</p>
       </Card>
 
-      {/* PREVIEW NATIVO DO ANT DESIGN */}
       <Image
         src={product.image}
         fallback={default_image}
@@ -66,8 +64,7 @@ export default function ProductItem({ product, showViewButton }: ProductItemProp
           src: product.image,
           onVisibleChange: (v) => setVisible(v),
         }}
-        style={{ display: "none" }} // não mostra esta imagem na tela
-      />
+        style={{ display: "none" }} />
     </>
   );
 }

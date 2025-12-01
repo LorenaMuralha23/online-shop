@@ -36,7 +36,7 @@ import {
   randomStatus,
 } from "../../utils/clientUtils";
 
-import type { Client } from "../interfaces/Interfaces";
+import type { Client } from "../Interfaces/Interfaces";
 
 const { Title } = Typography;
 
@@ -67,7 +67,6 @@ export default function ClientsPage() {
   const [formEdit] = Form.useForm();
   const [formCreate] = Form.useForm();
 
-  // Carregar da API apenas na primeira vez
   useEffect(() => {
     if (clients.length === 0) {
       fetch("https://jsonplaceholder.typicode.com/users")
@@ -89,9 +88,6 @@ export default function ClientsPage() {
     }
   }, []);
 
-  // ==============================
-  // EDITAR → Drawer lateral
-  // ==============================
   const openEditDrawer = (client: Client) => {
     setCurrent(client);
     formEdit.setFieldsValue(client);
@@ -107,9 +103,6 @@ export default function ClientsPage() {
     });
   };
 
-  // ==============================
-  // EXCLUIR → Modal de confirmação
-  // ==============================
   const openDeleteConfirm = (id: number) => {
     setDeleteId(id);
   };
@@ -120,9 +113,6 @@ export default function ClientsPage() {
     setDeleteId(null);
   };
 
-  // ==============================
-  // CRIAR NOVO CLIENTE → Modal
-  // ==============================
   const handleCreateSave = () => {
     formCreate.validateFields().then(values => {
       const newClient: Client = {
@@ -139,9 +129,6 @@ export default function ClientsPage() {
     });
   };
 
-  // ==============================
-  // COLUNAS DA TABELA
-  // ==============================
   const columns = [
     {
       title: "First Name",
@@ -209,12 +196,8 @@ export default function ClientsPage() {
     },
   ];
 
-  // ==============================
-  // RENDER
-  // ==============================
   return (
     <div style={{ padding: token.paddingXL }}>
-      {/* HEADER */}
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: token.marginLG }}>
         <Title level={3}>List of Users</Title>
 
@@ -223,10 +206,8 @@ export default function ClientsPage() {
         </Button>
       </div>
 
-      {/* TABELA */}
       <Table bordered columns={columns} dataSource={clients} rowKey="id" />
 
-      {/* DRAWER - EDITAR */}
       <Drawer
         title="Edit User"
         open={editOpen}
@@ -244,7 +225,6 @@ export default function ClientsPage() {
         </Form>
       </Drawer>
 
-      {/* MODAL EXCLUSÃO */}
       <Modal
         open={deleteId !== null}
         onCancel={() => setDeleteId(null)}
@@ -256,7 +236,6 @@ export default function ClientsPage() {
         Tem certeza que deseja excluir este cliente?
       </Modal>
 
-      {/* MODAL CRIAÇÃO */}
       <Modal
         title="New Client"
         open={createOpen}

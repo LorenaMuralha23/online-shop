@@ -15,17 +15,12 @@ import ProfilePage from "./pages/Profile/ProfilePage";
 function AppContent() {
   const location = useLocation();
 
-  // rotas onde a navbar NÃO deve aparecer
   const hideNavbar = ["/login", "/register"].includes(location.pathname);
 
-  // ===========================
-  //   THEME STATE (light/dark)
-  // ===========================
   const [mode, setMode] = useState<"light" | "dark">(
     () => (localStorage.getItem("theme") as "light" | "dark") || "light"
   );
 
-  // salva no localStorage ao trocar
   useEffect(() => {
     localStorage.setItem("theme", mode);
   }, [mode]);
@@ -38,7 +33,6 @@ function AppContent() {
       }}
     >
       <Layout style={{ minHeight: "100vh" }}>
-        {/* Passamos o tema para a Navbar */}
         {!hideNavbar && <Navbar mode={mode} setMode={setMode} />}
 
         <Content style={{ padding: hideNavbar ? 0 : 24 }}>

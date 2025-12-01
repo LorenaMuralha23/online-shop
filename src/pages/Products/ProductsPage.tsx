@@ -31,14 +31,12 @@ import {
   addProduct,
 } from "../../store/productSlice";
 
-import type { Product } from "../interfaces/Interfaces";
+import type { Product } from "../Interfaces/Interfaces";
 import { addToCart } from "../../store/cartSlice";
 
 const { Title, Text } = Typography;
 
-// ===============================
-// FORM TYPES
-// ===============================
+
 interface ProductFormValues {
   title: string;
   price: number;
@@ -47,9 +45,7 @@ interface ProductFormValues {
   image: string;
 }
 
-// ===============================
-// API TYPE
-// ===============================
+
 interface ApiProduct {
   id: number;
   title: string;
@@ -70,12 +66,10 @@ export default function ProductsPage() {
   const [, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
 
-  // EDIT
   const [editOpen, setEditOpen] = useState(false);
   const [current, setCurrent] = useState<Product | null>(null);
   const [formEdit] = Form.useForm<ProductFormValues>();
 
-  // CREATE
   const [createOpen, setCreateOpen] = useState(false);
   const [formCreate] = Form.useForm<ProductFormValues>();
 
@@ -83,9 +77,6 @@ export default function ProductsPage() {
 
   const { token } = theme.useToken();
 
-  // ===============================
-  // LOAD PRODUCTS
-  // ===============================
   useEffect(() => {
     const loadProducts = async () => {
       try {
@@ -127,9 +118,6 @@ export default function ProductsPage() {
     loadProducts();
   }, []);
 
-  // ===============================
-  // EDIT PRODUCT
-  // ===============================
   const openEditDrawer = (product: Product) => {
     setCurrent(product);
     formEdit.setFieldsValue({ ...product });
@@ -152,17 +140,11 @@ export default function ProductsPage() {
     });
   };
 
-  // ===============================
-  // DELETE PRODUCT
-  // ===============================
   const handleDelete = (id: number) => {
     dispatch(deleteProduct(id));
     message.success("Produto removido!");
   };
 
-  // ===============================
-  // CREATE PRODUCT
-  // ===============================
   const handleCreateProduct = () => {
     formCreate.validateFields().then((values) => {
       const newProduct: Product = {
@@ -185,17 +167,12 @@ export default function ProductsPage() {
 
   const isUserProduct = (id: number) => id > 1000;
 
-  // SEARCH FILTER
   const filteredProducts = products.filter((p) =>
     p.title.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  // ===============================
-  // RENDER
-  // ===============================
   return (
     <div style={{ padding: 24 }}>
-      {/* HEADER */}
       <Flex justify="space-between" align="center" style={{ marginBottom: 20 }}>
         <Title level={3}>List of Products</Title>
 
@@ -210,7 +187,6 @@ export default function ProductsPage() {
         )}
       </Flex>
 
-      {/* SEARCH */}
       <Input
         placeholder="Search product..."
         value={searchText}
@@ -222,8 +198,6 @@ export default function ProductsPage() {
         }}
       />
 
-      {/* LIST */}
-      {/* LISTA DE PRODUTOS — GRID PERFEITO */}
       <Row gutter={[24, 24]}>
         {filteredProducts.map((p) => (
           <Col xs={24} sm={12} md={8} lg={6} key={p.id}>
@@ -235,10 +209,9 @@ export default function ProductsPage() {
                 background: token.colorBgContainer,
                 display: "flex",
                 flexDirection: "column",
-                height: 420, // 🔥 Agora funciona corretamente
+                height: 420, 
               }}
             >
-              {/* IMAGEM */}
               <Image
                 src={p.image}
                 fallback={default_image}
@@ -247,7 +220,6 @@ export default function ProductsPage() {
                 style={{ objectFit: "contain", marginBottom: 16 }}
               />
 
-              {/* TÍTULO */}
               <Title
                 level={5}
                 style={{ height: 52, overflow: "hidden", marginBottom: 8 }}
@@ -255,23 +227,19 @@ export default function ProductsPage() {
                 {p.title}
               </Title>
 
-              {/* AVALIAÇÃO */}
               <div style={{ marginBottom: 8 }}>
                 <Rate disabled value={p.rating.rate} allowHalf />
                 <Text> ({p.rating.count})</Text>
               </div>
 
-              {/* DESCRIÇÃO LIMITADA */}
               <Text style={{ height: 48, overflow: "hidden", display: "block" }}>
                 {p.description.substring(0, 85)}...
               </Text>
 
-              {/* PREÇO */}
               <Text strong style={{ marginTop: 8 }}>
                 US$ {p.price}
               </Text>
 
-              {/* BOTÕES FIXADOS EMBAIXO */}
               <Flex style={{ marginTop: "auto", gap: 8 }}>
                 {isUserProduct(p.id) ? (
                   <>
@@ -315,7 +283,6 @@ export default function ProductsPage() {
       </Row>
 
 
-      {/* EDIT DRAWER */}
       <Drawer
         title="Edit Product"
         open={editOpen}
@@ -354,7 +321,6 @@ export default function ProductsPage() {
         </Form>
       </Drawer>
 
-      {/* CREATE MODAL */}
       <Modal
         title="New Product"
         open={createOpen}
