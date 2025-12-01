@@ -17,7 +17,8 @@ import {
   decreaseQuantity,
   increaseQuantity,
   removeFromCart,
-  clearCart,
+  checkout,
+  clearCart
 } from "../../store/cartSlice";
 import type { CartItem } from "../../store/cartSlice";
 
@@ -121,8 +122,8 @@ export default function CartPage() {
             block
             size="large"
             onClick={() => {
+              dispatch(checkout());
               message.success("Compra finalizada com sucesso!");
-              dispatch(clearCart());
             }}
           >
             Finalizar Compra
@@ -139,6 +140,7 @@ export default function CartPage() {
           >
             Limpar Carrinho
           </Button>
+
         </>
       )}
     </div>
