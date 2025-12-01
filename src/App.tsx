@@ -11,6 +11,7 @@ import ProductsPage from "./pages/Products/ProductsPage";
 import ClientsPage from "./pages/Clients/ClientsPage";
 import CartPage from "./pages/Clients/CartPage";
 import ProfilePage from "./pages/Profile/ProfilePage";
+import PrivateRoute from "./routes/PrivateRoute";
 
 function AppContent() {
   const location = useLocation();
@@ -41,7 +42,14 @@ function AppContent() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/register" element={<RegisterPage />} />
-            <Route path="/clients" element={<ClientsPage />} />
+            <Route
+              path="/clients"
+              element={
+                <PrivateRoute>
+                  <ClientsPage />
+                </PrivateRoute>
+              }
+            />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Routes>
